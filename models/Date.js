@@ -1,16 +1,16 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const DateSchema = new mongoose.Schema({
-    date:{
-        type:Date,
-        required:true,
-        default:Date.now
+  date: {
+    type: String,
+    required: true,
+  },
+  bookingdetails: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Booking",
     },
-    bookingdetails:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Booking",
-        required: true
-    }
-})
+  ],
+});
 
 module.exports = mongoose.model("Date", DateSchema);
