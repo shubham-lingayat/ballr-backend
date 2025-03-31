@@ -4,7 +4,7 @@ const User = require("../models/User");
 
 exports.createBooking = async (req, res) => {
   try {
-    // Get data from request body
+    // Extract data from request body
     const { clientname, tablenumber, clientcount, clientcontact, date } =
       req.body;
     const userId = req.user.id; // Assuming user is authenticated
@@ -17,37 +17,43 @@ exports.createBooking = async (req, res) => {
       !clientcontact ||
       !date
     ) {
-      return res.status(400).json({
-        success: false,
-        message: "Please fill all the details",
-      });
+      return res
+        .status(400)
+        .json({ success: false, message: "Please fill all the details" });
     }
 
     if (!userId) {
-      return res.status(400).json({
-        success: false,
-        message: "User not found, please log in again",
-      });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "User not found, please log in again",
+        });
     }
 
-    // ✅ Check if a Date entry already exists for the given date
-    let dateEntry = await DateModel.findOne({ date });
+    // 🔹 Step 1: Ensure a Date entry exists (if not, create one first)
+    let dateEntry = await DateModel.findOneAndUpdate(
+      { date },
+      { $setOnInsert: { date, bookingdetails: [] } }, // Only set if creating a new entry
+      { new: true, upsert: true } // Upsert ensures the document is created if not found
+    );
 
-    // ✅ Check if a booking already exists for the same date and table number
+    // 🔹 Step 2: Check if the table is already booked on that date
     const existingBooking = await Booking.findOne({
       tablenumber,
       dateDetails: dateEntry._id,
     });
-
     if (existingBooking) {
-      return res.status(400).json({
-        success: false,
-        message:
-          "A booking already exists for this table on the selected date.",
-      });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message:
+            "A booking already exists for this table on the selected date.",
+        });
     }
 
-    // ✅ Create a new Booking entry
+    // 🔹 Step 3: Create a new Booking
     const bookingDetails = await Booking.create({
       userdetails: userId,
       clientname,
@@ -55,40 +61,30 @@ exports.createBooking = async (req, res) => {
       clientcount,
       clientcontact,
       date,
+      dateDetails: dateEntry._id, // Directly linking with DateModel
     });
 
-    if (!dateEntry) {
-      // If no entry exists, create a new one with the first booking
-      dateEntry = await DateModel.create({
-        date,
-        bookingdetails: [bookingDetails._id], // Store as an array
-      });
-    } else {
-      // If a Date entry exists, add this new booking to the array
-      dateEntry.bookingdetails.push(bookingDetails._id);
-      await dateEntry.save();
-    }
+    // 🔹 Step 4: Update DateModel with new booking
+    await DateModel.findByIdAndUpdate(dateEntry._id, {
+      $push: { bookingdetails: bookingDetails._id },
+    });
 
-    const finalBooking = await Booking.findByIdAndUpdate(
-      bookingDetails._id,
-      { dateDetails: dateEntry._id },
-      { new: true }
-    );
-
-    // ✅ Return response
+    // 🔹 Step 5: Return response
     return res.status(200).json({
       success: true,
       message: "Booking created successfully!",
-      databooking: finalBooking,
+      databooking: bookingDetails,
       datadate: dateEntry,
     });
   } catch (err) {
-    console.log(err);
-    return res.status(500).json({
-      success: false,
-      message: "Internal Server Error",
-      error: err.message,
-    });
+    console.error(err);
+    return res
+      .status(500)
+      .json({
+        success: false,
+        message: "Internal Server Error",
+        error: err.message,
+      });
   }
 };
 
