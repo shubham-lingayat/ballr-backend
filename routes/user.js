@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 // Handlers
-const { login, signup, sendOTP, getAllUser } = require("../controllers/Auth");
+const { login, signup, sendOTP, getAllUser, updateIsActive } = require("../controllers/Auth");
 const { auth, isAdmin } = require("../middlewares/auth");
 const { createBooking, getBookingsByDate } = require("../controllers/Booking");
 
@@ -17,6 +17,7 @@ router.get("/bookings/:date", auth, getBookingsByDate);
 
 // Get User data --> Proteted Route
 router.get("/getalluser", auth, isAdmin, getAllUser);
+router.post("/updateisactive", auth, isAdmin, updateIsActive);
 
 // Protected route
 // check authontication and role is Admin or not

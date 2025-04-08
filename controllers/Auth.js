@@ -222,3 +222,37 @@ exports.getAllUser = async(req,res)=>{
     })
   }
 }
+
+// Update isActive of Pr
+exports.updateIsActive = async (req,res) =>{
+  try{
+    const {prId, isActive} = req.body;
+    if (!prId || isActive==null){
+      return res.status(400).json({
+        success:false,
+        message:"All fields required"
+      });
+    }
+
+    const updatePr = await User.findByIdAndUpdate(prId, {isActive:isActive}, {new:true});
+
+    if (!updatePr){
+      return res.status(404).json({
+        success:false,
+        message:"User Not Found"
+      });
+    }
+
+    return res.status(200).json({
+      success:true,
+      message:"User Account Actiavted/Deactivated Successfully"
+    });
+
+  }
+  catch(err){
+    return res.status(500).json({
+      success:false,
+      message:"Internal Server Error"
+    })
+  }
+}
