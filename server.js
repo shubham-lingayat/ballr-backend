@@ -20,8 +20,12 @@ const PORT = process.env.PORT || 4000;
 
 // Cookie-Parser
 // middleware
-const cookieparser = require("cookie-parser");
-app.use(cookieparser());
+// const cookieparser = require("cookie-parser");
+// app.use(cookieparser());
+
+const cookieParser = require('cookie-parser');
+app.use(cookieParser());
+
 
 app.use(express.json());
 

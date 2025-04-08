@@ -9,6 +9,16 @@ exports.auth = (req,res, next)=>{
         // 1. directly from the request body
         // 2. From the cookies of the http request
         // 3. From the header of the http request -> Header conatins key value pairs -> key => "Authorization" value => "Bearer {token}"
+
+        const tokencookie = req.cookies.token;
+
+            if (!tokencookie) {
+                return res.status(401).json({
+                success: false,
+                message: "Token missing from cookies",
+                });
+            }
+
         const token = req.body.token || req.cookies.token || req.header("Authorization").replace("Bearer ", "");
         
         if(!token){
@@ -40,10 +50,9 @@ exports.auth = (req,res, next)=>{
         
 
     } catch(err){
-            console.log(err);
             return res.status(401).json({
                 success:false,
-                message:'something went wrong, while verifying the token',
+                message:'something went wrong, Token is Missing',
             });
     }
 }
