@@ -50,7 +50,7 @@ exports.auth = (req,res, next)=>{
 // isAdmin middleware
 exports.isAdmin = (req,res, next) =>{
     try{
-        if(req.user.role !== "Admin"){
+        if(req.user.accountType !== "Admin"){
             return res.status(401).json({
                 success:false,
                 message:"This is a protected route for Admin",

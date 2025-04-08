@@ -9,10 +9,10 @@ require("dotenv").config();
 exports.signup = async (req, res) => {
   try {
     // get data
-    const { name, email, password, accountType, contactNumber } = req.body;
+    const { name, email, password, accountType, contactNumber, isActive } = req.body;
 
     // Validate the data
-    if (!name || !email || !password || !accountType || !contactNumber) {
+    if (!name || !email || !password || !accountType || !contactNumber || !isActive) {
       return res.status(400).json({
         success: false,
         message: "Please fill all the details",
@@ -47,6 +47,7 @@ exports.signup = async (req, res) => {
       password: hashedPassword,
       accountType,
       contactNumber,
+      isActive
     });
 
     return res.status(200).json({
@@ -195,3 +196,29 @@ exports.sendOTP = async (req, res) => {
     });
   }
 };
+
+// Get users data
+exports.getAllUser = async(req,res)=>{
+  try{
+    const allUser = await User.find();
+
+    if (!allUser){
+      return res.status(400).json({
+        success:false,
+        message:"Database is Empty"
+      })
+    }
+
+    return res.status(200).json({
+      success:true,
+      message:"Data Fetched Successfully",
+      data:allUser
+    })
+  }
+  catch(err){
+    return res.status(500).json({
+      success:false,
+      message:"Internal Server Error"
+    })
+  }
+}

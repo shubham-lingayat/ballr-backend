@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
     contactNumber:{
         type:Number,
         required:true
+    },
+    isActive:{
+        type:Boolean,
+        required:true
     }
 })
 
