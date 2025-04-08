@@ -12,7 +12,7 @@ exports.signup = async (req, res) => {
     const { name, email, password, accountType, contactNumber, isActive } = req.body;
 
     // Validate the data
-    if (!name || !email || !password || !accountType || !contactNumber || !isActive) {
+    if (!name || !email || !password || !accountType || !contactNumber || isActive==null) {
       return res.status(400).json({
         success: false,
         message: "Please fill all the details",
