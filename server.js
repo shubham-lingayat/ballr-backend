@@ -4,15 +4,23 @@ const express = require("express");
 const app = express();
 // Cors for locahost
 const cors = require("cors");
-app.use(cors()); // allows all origins
+
+const allowedOrigins = ["http://localhost:3000", "http://localhost:4209"];
 
 app.use(
   cors({
-    origin: "http://localhost:4209", // your frontend origin
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 
 // import dtenv
 require("dotenv").config();
